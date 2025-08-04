@@ -105,8 +105,11 @@ class App:
         
     def _realizar_pedido_callback(self, direccion, articulos):
         """Callback para realizar un pedido"""
-        if self.controlador.realizar_pedido(self.current_user, direccion, articulos):
-            messagebox.showinfo("Éxito", "Pedido registrado exitosamente.")
+        resultado = self.controlador.realizar_pedido(self.current_user, direccion, articulos)
+        if resultado["success"]:
+            messagebox.showinfo("Éxito", resultado["message"])
+        else:
+            messagebox.showerror("Error", resultado["message"])
 
     def actualizar_stock_menu(self):
         """Menú para actualizar el stock (proveedor)"""

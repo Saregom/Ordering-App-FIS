@@ -183,8 +183,18 @@ class PedidosVista(BaseVista):
         self.articulos_seleccionados = {art: tk.IntVar(value=0) for art in self.articulos}
         
         for i, art in enumerate(self.articulos):
-            ttk.Label(scrollable_art_frame, text=f"• {art.nombre} - ${art.precio}").grid(row=i, column=0, sticky='w')
-            ttk.Spinbox(scrollable_art_frame, from_=0, to=10, 
-                       textvariable=self.articulos_seleccionados[art], width=5).grid(row=i, column=1, padx=5)
+            # Mostrar información del artículo incluyendo stock disponible
+            info_text = f"• {art.nombre} - ${art.precio} (Stock: {art.cantidad})"
+            ttk.Label(scrollable_art_frame, text=info_text).grid(row=i, column=0, sticky='w')
+            
+            # Limitar el spinbox al stock disponible
+            max_cantidad = min(10, art.cantidad) if art.cantidad > 0 else 0
+            spinbox = ttk.Spinbox(scrollable_art_frame, from_=0, to=max_cantidad, 
+                       textvariable=self.articulos_seleccionados[art], width=5)
+            spinbox.grid(row=i, column=1, padx=5)
+            
+            # Deshabilitar si no hay stock
+            if art.cantidad == 0:
+                spinbox.configure(state='disabled')
         
         return art_frame
