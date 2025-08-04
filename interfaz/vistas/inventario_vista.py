@@ -20,23 +20,26 @@ class InventarioVista(BaseVista):
         tree_frame = ttk.Frame(win)
         tree_frame.pack(fill='both', expand=True, padx=10, pady=10)
 
-        tree = ttk.Treeview(tree_frame, columns=('Código', 'Nombre', 'Descripción', 'Precio', 'Stock'), show='headings')
+        tree = ttk.Treeview(tree_frame, columns=('Código', 'Nombre', 'Descripción', 'Precio', 'Stock', 'Unidad'), show='headings')
         tree.heading('Código', text='Código')
         tree.heading('Nombre', text='Nombre')
         tree.heading('Descripción', text='Descripción')
         tree.heading('Precio', text='Precio')
         tree.heading('Stock', text='Stock')
+        tree.heading('Unidad', text='Unidad')
         
         for art in self.articulos:
             codigo = art.codigo
             cantidad = getattr(art, 'cantidad', 0)
-            tree.insert('', 'end', values=(codigo, art.nombre, art.descripcion, f"${art.precio}", f"{cantidad} unidades"))
+            unidad = getattr(art, 'unidad_medida', 'unidades')
+            tree.insert('', 'end', values=(codigo, art.nombre, art.descripcion, f"${art.precio}", cantidad, unidad))
 
-        tree.column('Código', width=100, anchor='center')
-        tree.column('Nombre', width=100, anchor='w')
-        tree.column('Descripción', width=100, anchor='w')
-        tree.column('Precio', width=100, anchor='center')
-        tree.column('Stock', width=100, anchor='center')
+        tree.column('Código', width=80, anchor='center')
+        tree.column('Nombre', width=120, anchor='w')
+        tree.column('Descripción', width=120, anchor='w')
+        tree.column('Precio', width=80, anchor='center')
+        tree.column('Stock', width=80, anchor='center')
+        tree.column('Unidad', width=80, anchor='center')
         
         scrollbar = ttk.Scrollbar(tree_frame, orient='vertical', command=tree.yview)
         tree.configure(yscrollcommand=scrollbar.set)
@@ -61,13 +64,14 @@ class InventarioVista(BaseVista):
         tree_frame = ttk.Frame(win)
         tree_frame.pack(fill='both', expand=True, padx=10, pady=10)
         
-        tree = ttk.Treeview(tree_frame, columns=('Código', 'Nombre', 'Precio Base', 'Stock Planta', 'Precio Actual', 'Stock Actual'), show='headings')
+        tree = ttk.Treeview(tree_frame, columns=('Código', 'Nombre', 'Precio Base', 'Stock Planta', 'Precio Actual', 'Stock Actual', 'Unidad'), show='headings')
         tree.heading('Código', text='Código')
         tree.heading('Nombre', text='Nombre')
         tree.heading('Precio Base', text='Precio Base Planta')
         tree.heading('Stock Planta', text='Stock Planta')
         tree.heading('Precio Actual', text='Precio Inventario')
         tree.heading('Stock Actual', text='Stock Inventario')
+        tree.heading('Unidad', text='Unidad')
         
         # Obtener stock de la planta
         if 'get_stock_planta' in self.callbacks:
@@ -105,22 +109,26 @@ class InventarioVista(BaseVista):
                 precio_inventario = 0
                 stock_inventario = 0
             
+            unidad = getattr(art, 'unidad_medida', 'unidades')
+            
             tree.insert('', 'end', values=(
                 art.codigo, 
                 art.nombre, 
                 f"${art.precio:.2f}", 
                 stock_planta,
                 f"${precio_inventario:.2f}",
-                stock_inventario
+                stock_inventario,
+                unidad
             ))
         
         # Configurar columnas
-        tree.column('Código', width=80, anchor='center')
-        tree.column('Nombre', width=150, anchor='w')
-        tree.column('Precio Base', width=100, anchor='center')
-        tree.column('Stock Planta', width=90, anchor='center')
-        tree.column('Precio Actual', width=100, anchor='center')
-        tree.column('Stock Actual', width=90, anchor='center')
+        tree.column('Código', width=70, anchor='center')
+        tree.column('Nombre', width=120, anchor='w')
+        tree.column('Precio Base', width=90, anchor='center')
+        tree.column('Stock Planta', width=80, anchor='center')
+        tree.column('Precio Actual', width=90, anchor='center')
+        tree.column('Stock Actual', width=80, anchor='center')
+        tree.column('Unidad', width=70, anchor='center')
         
         scrollbar = ttk.Scrollbar(tree_frame, orient='vertical', command=tree.yview)
         tree.configure(yscrollcommand=scrollbar.set)
@@ -213,7 +221,7 @@ class InventarioVista(BaseVista):
 
     def mostrar_stock_planta(self, stock_data):
         """Muestra el stock actual y mínimo de la planta manufacturera"""
-        win = self.create_window("Stock Planta Manufacturera", 600, 450)
+        win = self.create_window("Stock Planta Manufacturera", 650, 450)
         
         header_frame = ttk.Frame(win)
         header_frame.pack(fill='x', pady=10)
@@ -225,11 +233,12 @@ class InventarioVista(BaseVista):
         main_frame.pack(fill='both', expand=True, padx=10, pady=10)
         
         # Crear Treeview para mostrar el stock
-        tree = ttk.Treeview(main_frame, columns=('Código', 'Nombre', 'Stock Actual', 'Stock Mínimo', 'Estado'), show='headings')
+        tree = ttk.Treeview(main_frame, columns=('Código', 'Nombre', 'Stock Actual', 'Stock Mínimo', 'Unidad', 'Estado'), show='headings')
         tree.heading('Código', text='Código')
         tree.heading('Nombre', text='Nombre Artículo')
         tree.heading('Stock Actual', text='Stock Actual')
         tree.heading('Stock Mínimo', text='Stock Mínimo')
+        tree.heading('Unidad', text='Unidad')
         tree.heading('Estado', text='Estado')
         
         # Obtener todos los códigos únicos
@@ -241,10 +250,13 @@ class InventarioVista(BaseVista):
             stock_actual = stock_data['stock_actual'].get(codigo, 0)
             stock_minimo = stock_data['stock_minimo'].get(codigo, 0)
             
-            # Obtener nombre del artículo
+            # Obtener nombre del artículo y unidad
             nombre = "N/A"
+            unidad = "unidades"
             if 'articulos_info' in stock_data and codigo in stock_data['articulos_info']:
-                nombre = stock_data['articulos_info'][codigo]['nombre']
+                info = stock_data['articulos_info'][codigo]
+                nombre = info['nombre']
+                unidad = info.get('unidad_medida', 'unidades')
             
             # Determinar el estado
             if stock_actual <= stock_minimo:
@@ -254,14 +266,15 @@ class InventarioVista(BaseVista):
             else:
                 estado = "✅ Suficiente"
             
-            item = tree.insert('', 'end', values=(codigo, nombre, stock_actual, stock_minimo, estado))
+            item = tree.insert('', 'end', values=(codigo, nombre, stock_actual, stock_minimo, unidad, estado))
         
         # Configurar columnas
-        tree.column('Código', width=100, anchor='center')
-        tree.column('Nombre', width=150, anchor='w')
-        tree.column('Stock Actual', width=100, anchor='center')
-        tree.column('Stock Mínimo', width=100, anchor='center')
-        tree.column('Estado', width=100, anchor='center')
+        tree.column('Código', width=80, anchor='center')
+        tree.column('Nombre', width=120, anchor='w')
+        tree.column('Stock Actual', width=80, anchor='center')
+        tree.column('Stock Mínimo', width=80, anchor='center')
+        tree.column('Unidad', width=80, anchor='center')
+        tree.column('Estado', width=90, anchor='center')
         
         # Scrollbar
         scrollbar = ttk.Scrollbar(main_frame, orient='vertical', command=tree.yview)
@@ -278,6 +291,82 @@ class InventarioVista(BaseVista):
                                if stock_data['stock_actual'].get(codigo, 0) <= stock_data['stock_minimo'].get(codigo, 0))
         
         ttk.Label(info_frame, text=f"Total de artículos: {total_articulos} | Artículos en estado crítico: {articulos_criticos}",
+                 font=('Helvetica', 10)).pack()
+        
+        # Botón cerrar
+        btn_frame = ttk.Frame(win)
+        btn_frame.pack(pady=10)
+        ttk.Button(btn_frame, text="Cerrar", command=win.destroy).pack()
+
+    def mostrar_stock_tienda(self, stock_data):
+        """Muestra el stock actual y mínimo de la tienda para el proveedor"""
+        win = self.create_window("Stock Tienda", 650, 450)
+        
+        header_frame = ttk.Frame(win)
+        header_frame.pack(fill='x', pady=10)
+        ttk.Label(header_frame, text="Stock Tienda", 
+                 style='Header.TLabel').pack()
+        
+        # Frame principal con scroll
+        main_frame = ttk.Frame(win)
+        main_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        
+        # Crear Treeview para mostrar el stock
+        tree = ttk.Treeview(main_frame, columns=('Código', 'Nombre', 'Stock Actual', 'Stock Mínimo', 'Unidad', 'Estado'), show='headings')
+        tree.heading('Código', text='Código')
+        tree.heading('Nombre', text='Nombre Artículo')
+        tree.heading('Stock Actual', text='Stock Actual')
+        tree.heading('Stock Mínimo', text='Stock Mínimo')
+        tree.heading('Unidad', text='Unidad')
+        tree.heading('Estado', text='Estado')
+        
+        # Obtener información de artículos de la tienda
+        articulos_info = stock_data.get('articulos_info', {})
+        
+        for codigo in sorted(articulos_info.keys()):
+            info = articulos_info[codigo]
+            stock_actual = info['stock_actual']
+            stock_minimo = info['stock_minimo']
+            nombre = info['nombre']
+            unidad = info.get('unidad_medida', 'unidades')
+            
+            # Determinar el estado
+            if stock_actual <= stock_minimo:
+                estado = "🔴 Crítico"
+            elif stock_actual <= stock_minimo * 1.5:
+                estado = "🟡 Bajo"
+            else:
+                estado = "🟢 Suficiente"
+            
+            item = tree.insert('', 'end', values=(codigo, nombre, stock_actual, stock_minimo, unidad, estado))
+        
+        # Configurar columnas
+        tree.column('Código', width=80, anchor='center')
+        tree.column('Nombre', width=120, anchor='w')
+        tree.column('Stock Actual', width=80, anchor='center')
+        tree.column('Stock Mínimo', width=80, anchor='center')
+        tree.column('Unidad', width=80, anchor='center')
+        tree.column('Estado', width=90, anchor='center')
+        
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(main_frame, orient='vertical', command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side='right', fill='y')
+        tree.pack(fill='both', expand=True)
+        
+        # Frame para información adicional
+        info_frame = ttk.Frame(win)
+        info_frame.pack(fill='x', padx=10, pady=5)
+        
+        total_articulos = len(articulos_info)
+        articulos_criticos = sum(1 for info in articulos_info.values() 
+                               if info['stock_actual'] <= info['stock_minimo'])
+        articulos_bajos = sum(1 for info in articulos_info.values() 
+                            if info['stock_actual'] > info['stock_minimo'] and 
+                               info['stock_actual'] <= info['stock_minimo'] * 1.5)
+        
+        ttk.Label(info_frame, 
+                 text=f"Total de artículos: {total_articulos} | Críticos: {articulos_criticos} | Bajos: {articulos_bajos}",
                  font=('Helvetica', 10)).pack()
         
         # Botón cerrar

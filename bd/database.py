@@ -20,8 +20,8 @@ class DatabaseManager:
         """Inicializa la base de datos con datos de prueba"""
         # Inicializar artículos
         self._articulos = [
-            Articulo("1122", "Laptop Acer B2C3", "Computadora personal", 850, 50),
-            Articulo("3344", "Mouse Razer", "Mouse ergonómico", 25, 100)
+            Articulo("1122", "Laptop Acer B2C3", "Computadora personal", 850, 50, 10, "unidades"),
+            Articulo("3344", "Mouse Razer", "Mouse ergonómico", 25, 100, 15, "unidades")
         ]
         
         # Inicializar usuarios
@@ -38,11 +38,11 @@ class DatabaseManager:
         
         # Configurar planta
         self._articulos_planta = [
-            Articulo("1122", "Laptop Acer B2C3", "Computadora personal", 800, 50),
-            Articulo("3344", "Mouse Razer", "Mouse ergonómico", 20, 100),
-            Articulo("5566", "Teclado Logitech", "Teclado mecánico", 25, 75),
-            Articulo("7788", "Monitor Dell", "Monitor 24 pulgadas", 80, 30),
-            Articulo("9900", "Impresora HP", "Impresora láser", 70, 20)
+            Articulo("1122", "Laptop Acer B2C3", "Computadora personal", 800, 50, 10, "unidades"),
+            Articulo("3344", "Mouse Razer", "Mouse ergonómico", 20, 100, 15, "unidades"),
+            Articulo("5566", "Teclado Logitech", "Teclado mecánico", 25, 75, 10, "unidades"),
+            Articulo("7788", "Monitor Dell", "Monitor 24 pulgadas", 80, 30, 5, "unidades"),
+            Articulo("9900", "Impresora HP", "Impresora láser", 70, 20, 3, "unidades")
         ]
 
         self._planta.cant_art_pm = {"1122": 200, "3344": 400, "5566": 300, "7788": 150, "9900": 100}

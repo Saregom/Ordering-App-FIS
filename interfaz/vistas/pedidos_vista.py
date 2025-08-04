@@ -106,7 +106,8 @@ class PedidosVista(BaseVista):
             
             for art, cant in ped.articulos_cant.items():
                 precio_articulo = art.precio * cant
-                ttk.Label(frame, text=f"• {art.nombre}: {cant} und - ${precio_articulo:.2f}").pack(anchor='w')
+                unidad = getattr(art, 'unidad_medida', 'unidades')
+                ttk.Label(frame, text=f"• {art.nombre}: {cant} {unidad} - ${precio_articulo:.2f}").pack(anchor='w')
     
     def mostrar_cambiar_estado(self, todos_los_pedidos):
         """Muestra la interfaz para cambiar el estado de los pedidos"""
@@ -224,8 +225,9 @@ class PedidosVista(BaseVista):
                 self.total_label.config(text=f"Total estimado: ${total:.2f}")
         
         for i, art in enumerate(self.articulos):
-            # Mostrar información del artículo incluyendo stock disponible
-            info_text = f"• {art.nombre} - ${art.precio:.2f} (Stock: {art.cantidad})"
+            # Mostrar información del artículo incluyendo stock disponible y unidad
+            unidad = getattr(art, 'unidad_medida', 'unidades')
+            info_text = f"• {art.nombre} - ${art.precio:.2f} (Stock: {art.cantidad} {unidad})"
             ttk.Label(scrollable_art_frame, text=info_text).grid(row=i, column=0, sticky='w')
             
             # Limitar el spinbox al stock disponible

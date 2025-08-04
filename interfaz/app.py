@@ -74,6 +74,7 @@ class App:
             'realizar_pedido': self.realizar_pedido,
             'actualizar_stock': self.actualizar_stock_menu,
             'consultar_stock_planta': self.consultar_stock_planta,
+            'consultar_stock_tienda': self.consultar_stock_tienda,
             'consultar_inventario': self.consultar_inventario,
             'cambiar_estado_pedidos': self.cambiar_estado_pedidos,
             'logout': self.logout
@@ -148,6 +149,14 @@ class App:
         stock_data = self.controlador.get_stock_planta()
         inventario_vista = InventarioVista(self.root, [], {})
         inventario_vista.mostrar_stock_planta(stock_data)
+
+    def consultar_stock_tienda(self):
+        """Consultar el stock de la tienda (proveedor)"""
+        from interfaz.vistas.inventario_vista import InventarioVista
+        
+        stock_data = self.controlador.get_stock_tienda()
+        inventario_vista = InventarioVista(self.root, [], {})
+        inventario_vista.mostrar_stock_tienda(stock_data)
 
     def _get_articulos_planta_callback(self):
         """Callback para obtener artículos de la planta"""

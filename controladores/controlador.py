@@ -32,9 +32,9 @@ class Controlador:
         self.articulos = get_articulos()
         return True
     
-    def agregar_articulo(self, codigo, nombre, precio, cantidad=0):
+    def agregar_articulo(self, codigo, nombre, precio, cantidad=0, unidad_medida="unidades"):
         try:
-            nuevo_art = Articulo(codigo=codigo, nombre=nombre, descripcion="", precio=float(precio))
+            nuevo_art = Articulo(codigo=codigo, nombre=nombre, descripcion="", precio=float(precio), stock_minimo=5, unidad_medida=unidad_medida)
             add_articulo(nuevo_art)
             if cantidad > 0:
                 self.actualizar_stock(codigo, cantidad)
@@ -98,7 +98,8 @@ class Controlador:
             if articulo.codigo in planta.cant_art_pm or articulo.codigo in planta.stock_min_pm:
                 articulos_info[articulo.codigo] = {
                     'nombre': articulo.nombre,
-                    'precio': articulo.precio
+                    'precio': articulo.precio,
+                    'unidad_medida': getattr(articulo, 'unidad_medida', 'unidades')
                 }
         
         return {
@@ -111,6 +112,25 @@ class Controlador:
         """Retorna los artículos específicos de la planta manufacturera"""
         from bd.conecction_db import db
         return db.get_articulos_planta()
+    
+    def get_stock_tienda(self):
+        """Retorna el stock actual y mínimo de la tienda con información de estado"""
+        articulos = self.get_articulos()
+        
+        # Crear diccionario de información de stock de la tienda
+        stock_info = {}
+        for articulo in articulos:
+            stock_info[articulo.codigo] = {
+                'nombre': articulo.nombre,
+                'stock_actual': articulo.cantidad,
+                'stock_minimo': getattr(articulo, 'stock_minimo', 5),
+                'precio': articulo.precio,
+                'unidad_medida': getattr(articulo, 'unidad_medida', 'unidades')
+            }
+        
+        return {
+            'articulos_info': stock_info
+        }
     
     def agregar_articulo_desde_planta(self, codigo_planta, cantidad_surtir, precio_venta):
         """Agrega un artículo del inventario de la planta al inventario principal"""
@@ -148,7 +168,9 @@ class Controlador:
                     nombre=articulo_planta.nombre,
                     descripcion=articulo_planta.descripcion,
                     precio=precio_venta,
-                    cantidad=cantidad_surtir
+                    cantidad=cantidad_surtir,
+                    stock_minimo=5,  # Stock mínimo por defecto para artículos nuevos
+                    unidad_medida=getattr(articulo_planta, 'unidad_medida', 'unidades')
                 )
                 add_articulo(nuevo_articulo)
                 self.articulos = get_articulos()
