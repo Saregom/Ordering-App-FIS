@@ -9,7 +9,7 @@ class App:
     def __init__(self, root):
         self.root = root
         self.root.title("Sistema de Gestión de Pedidos")
-        self.root.geometry("600x400")
+        self.root.geometry("600x450")
         self.root.configure(bg="#f0f0f0")
         
         # Centrar ventana principal
@@ -17,7 +17,7 @@ class App:
         self.screen_width = self.root.winfo_screenwidth()
         self.screen_height = self.root.winfo_screenheight()
         width = 600
-        height = 400
+        height = 450
         self.centerX = (self.screen_width // 2) - (width // 2)
         self.centerY = (self.screen_height // 2) - (height // 2 + 100)
         self.root.geometry(f"{width}x{height}+{self.centerX}+{self.centerY}")

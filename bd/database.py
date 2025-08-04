@@ -63,7 +63,6 @@ class DatabaseManager:
         art = self.find_articulo_by_codigo(codigo)
         if art:
             if cantidad is not None:
-                print(f"Actualizando cantidad de {art.nombre} por {cantidad} unidades, antes: {art.cantidad}")
                 art.cantidad = art.cantidad + cantidad if hasattr(art, 'cantidad') else cantidad
             for key, value in kwargs.items():
                 if hasattr(art, key):

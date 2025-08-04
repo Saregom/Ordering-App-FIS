@@ -63,12 +63,10 @@ class Controlador:
         
         # Actualizar el stock de los artículos
         for articulo, cantidad_solicitada in articulos_cantidades.items():
-            print(f"Actualizando stock de {articulo.nombre} por {cantidad_solicitada} unidades")
             articulo_bd = find_articulo_by_codigo(articulo.codigo)
-            print(f"Stock actual de {articulo_bd.nombre}: {articulo_bd.cantidad} - {cantidad_solicitada}")
             self.actualizar_stock(articulo.codigo, -cantidad_solicitada)
         
-        return {"success": True, "message": "Pedido realizado exitosamente"}
+        return {"success": True, "message": f"Pedido realizado exitosamente. Total: ${pedido.precio_total:.2f}"}
     
     def cambiar_estado_pedido(self, direccion, fecha, nuevo_estado):
         pedido = next((ped for ped in get_pedidos() 

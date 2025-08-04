@@ -10,7 +10,7 @@ class InventarioVista(BaseVista):
         self.callbacks = callbacks
     
     def mostrar_inventario(self):
-        win = self.create_window("Inventario Actual", 600, 400)
+        win = self.create_window("Inventario Actual", 600, 450)
         
         header_frame = ttk.Frame(win)
         header_frame.pack(fill='x', pady=10)
@@ -19,19 +19,22 @@ class InventarioVista(BaseVista):
         
         tree_frame = ttk.Frame(win)
         tree_frame.pack(fill='both', expand=True, padx=10, pady=10)
-        
-        tree = ttk.Treeview(tree_frame, columns=('Código', 'Precio', 'Stock'), show='headings')
+
+        tree = ttk.Treeview(tree_frame, columns=('Código', 'Nombre', 'Descripción', 'Precio', 'Stock'), show='headings')
         tree.heading('Código', text='Código')
+        tree.heading('Nombre', text='Nombre')
+        tree.heading('Descripción', text='Descripción')
         tree.heading('Precio', text='Precio')
         tree.heading('Stock', text='Stock')
         
         for art in self.articulos:
             codigo = art.codigo
             cantidad = getattr(art, 'cantidad', 0)
-            tree.insert('', 'end', text=art.nombre, 
-                       values=(codigo, f"${art.precio}", f"{cantidad} unidades"))
-        
+            tree.insert('', 'end', values=(codigo, art.nombre, art.descripcion, f"${art.precio}", f"{cantidad} unidades"))
+
         tree.column('Código', width=100, anchor='center')
+        tree.column('Nombre', width=100, anchor='w')
+        tree.column('Descripción', width=100, anchor='w')
         tree.column('Precio', width=100, anchor='center')
         tree.column('Stock', width=100, anchor='center')
         
@@ -41,7 +44,7 @@ class InventarioVista(BaseVista):
         tree.pack(fill='both', expand=True)
     
     def mostrar_actualizar_stock(self):
-        win = self.create_window("Actualizar Stock", 600, 400)
+        win = self.create_window("Actualizar Stock", 600, 450)
         
         ttk.Label(win, text="Seleccione una opción:", font=('Helvetica', 12)).pack(pady=10)
         
@@ -56,25 +59,26 @@ class InventarioVista(BaseVista):
                   style='Provider.TButton', width=25).pack(pady=10)
     
     def mostrar_agregar_stock(self, parent_win):
-        win = self.create_window("Agregar a Producto Existente", 600, 400)
+        win = self.create_window("Agregar a Producto Existente", 600, 450)
         
         ttk.Label(win, text="Seleccione el producto:", font=('Helvetica', 12)).pack(pady=10)
         
         tree_frame = ttk.Frame(win)
         tree_frame.pack(fill='both', expand=True, padx=10, pady=10)
-        
-        tree = ttk.Treeview(tree_frame, columns=('Precio', 'Stock'), show='headings')
+
+        tree = ttk.Treeview(tree_frame, columns=('Codigo', 'Precio', 'Stock'), show='headings')
+        tree.heading('Codigo', text='Código')
         tree.heading('Precio', text='Precio')
         tree.heading('Stock', text='Stock Actual')
         
         # Insertar datos
         for art in self.articulos:
             cantidad = getattr(art, 'cantidad', 0)
-            tree.insert('', 'end', text=art.nombre, 
-                       values=(f"${art.precio}", f"{cantidad} unidades"))
-        
+            tree.insert('', 'end', text=art.nombre, values=(f"{art.codigo}", f"${art.precio}", f"{cantidad} unidades"))
+
+        tree.column('Codigo', width=100, anchor='center')
         tree.column('Precio', width=100, anchor='center')
-        tree.column('Stock', width=150, anchor='center')
+        tree.column('Stock', width=100, anchor='center')
         
         scrollbar = ttk.Scrollbar(tree_frame, orient='vertical', command=tree.yview)
         tree.configure(yscrollcommand=scrollbar.set)
@@ -110,7 +114,7 @@ class InventarioVista(BaseVista):
         ttk.Button(btn_frame, text="Cancelar", command=win.destroy).pack(side='left', padx=5)
     
     def mostrar_agregar_producto(self, parent_win):
-        win = self.create_window("Agregar Producto Nuevo", 600, 400)
+        win = self.create_window("Agregar Producto Nuevo", 600, 450)
         
         form_frame = ttk.Frame(win)
         form_frame.pack(pady=20, padx=20, fill='both', expand=True)

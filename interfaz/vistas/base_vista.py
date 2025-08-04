@@ -6,7 +6,7 @@ class BaseVista:
         self.screen_width = self.parent.winfo_screenwidth()
         self.screen_height = self.parent.winfo_screenheight()
     
-    def create_window(self, title, width=600, height=400):
+    def create_window(self, title, width=600, height=450):
         """Crea una ventana secundaria centrada"""
         win = tk.Toplevel(self.parent)
         win.title(title)
