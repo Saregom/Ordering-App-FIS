@@ -19,6 +19,9 @@ class MenuVista:
         
         # Configurar botones según tipo de usuario
         if isinstance(self.usuario, Cliente):
+            ttk.Button(btn_frame, text="Ver Saldo", 
+                      command=self.callbacks['ver_saldo'],
+                      style='Client.TButton', width=25).pack(pady=10)
             ttk.Button(btn_frame, text="Ver Historial de Pedidos", 
                       command=self.callbacks['ver_historial_pedidos'],
                       style='Client.TButton', width=25).pack(pady=10)

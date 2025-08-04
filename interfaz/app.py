@@ -4,6 +4,7 @@ from interfaz.vistas.inventario_vista import InventarioVista
 from interfaz.vistas.login_vista import LoginVista
 from interfaz.vistas.menu_vista import MenuVista
 from interfaz.vistas.pedidos_vista import PedidosVista
+from interfaz.vistas.saldo_vista import SaldoVista
 
 class App:
     def __init__(self, root):
@@ -70,6 +71,7 @@ class App:
         self.style.configure('Director.TButton', foreground='white', background='#d9534f')
         
         callbacks = {
+            'ver_saldo': self.ver_saldo,
             'ver_historial_pedidos': self.ver_historial_pedidos,
             'realizar_pedido': self.realizar_pedido,
             'actualizar_stock': self.actualizar_stock_menu,
@@ -97,6 +99,15 @@ class App:
         """Muestra el historial de pedidos del cliente"""
         pedidos_vista = PedidosVista(self.root, self.articulos_disponibles, {})
         pedidos_vista.mostrar_historial(self.current_user.pedidos)
+
+    def ver_saldo(self):
+        """Muestra el saldo y información financiera del cliente"""
+        info_saldo = self.controlador.get_saldo_cliente(self.current_user)
+        if info_saldo:
+            saldo_vista = SaldoVista(self.root, info_saldo)
+            saldo_vista.mostrar_saldo()
+        else:
+            messagebox.showerror("Error", "No se pudo obtener la información del saldo")
 
     def realizar_pedido(self):
         """Permite al cliente realizar un nuevo pedido"""

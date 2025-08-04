@@ -26,7 +26,7 @@ class DatabaseManager:
         
         # Inicializar usuarios
         self._usuarios = [
-            Cliente("33", "Jhojan Smirnoff", 5000000, 10000000, 10),
+            Cliente("33", "Jhojan Smirnoff", 50000, 100000, 10),
             DirectorVentas("11", "Saregom Gomez"),
             Proveedor("55", "Buñuelo Buitrago")
         ]

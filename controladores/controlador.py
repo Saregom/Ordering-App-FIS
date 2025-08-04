@@ -59,17 +59,39 @@ class Controlador:
             if articulo_bd.cantidad < cantidad_solicitada:
                 return {"success": False, "message": f"Stock insuficiente para {articulo.nombre}. Stock disponible: {articulo_bd.cantidad}, solicitado: {cantidad_solicitada}"}
         
-        # Si llegamos aquí, todos los artículos tienen stock suficiente
+        # Crear el pedido para calcular el precio total
         pedido = Pedido(direccion, datetime.now(), articulos_cantidades)
+        
+        # Aplicar descuento del cliente
+        precio_con_descuento = pedido.precio_total
+        if hasattr(usuario, 'descuento') and usuario.descuento > 0:
+            descuento_aplicado = pedido.precio_total * (usuario.descuento / 100)
+            precio_con_descuento = pedido.precio_total - descuento_aplicado
+        
+        # Verificar si el cliente tiene suficiente saldo + crédito disponible
+        saldo_disponible = usuario.saldo + getattr(usuario, 'limite_credito', 0)
+        if precio_con_descuento > saldo_disponible:
+            return {"success": False, 
+                   "message": f"Fondos insuficientes. Total a pagar: ${precio_con_descuento:.2f}, Disponible: ${saldo_disponible:.2f}"}
+        
+        # Si llegamos aquí, el pedido puede realizarse
         usuario.realizar_pedido(pedido)
         add_pedido(pedido)
+        
+        # Actualizar el saldo del cliente
+        usuario.saldo -= precio_con_descuento
         
         # Actualizar el stock de los artículos
         for articulo, cantidad_solicitada in articulos_cantidades.items():
             articulo_bd = find_articulo_by_codigo(articulo.codigo)
             self.actualizar_stock(articulo.codigo, -cantidad_solicitada)
         
-        return {"success": True, "message": f"Pedido realizado exitosamente. Total: ${pedido.precio_total:.2f}"}
+        mensaje_descuento = ""
+        if hasattr(usuario, 'descuento') and usuario.descuento > 0:
+            mensaje_descuento = f" (Descuento {usuario.descuento}% aplicado: -${pedido.precio_total - precio_con_descuento:.2f})"
+        
+        return {"success": True, 
+               "message": f"Pedido realizado exitosamente. Total pagado: ${precio_con_descuento:.2f}{mensaje_descuento}. Saldo restante: ${usuario.saldo:.2f}"}
     
     def cambiar_estado_pedido(self, direccion, fecha, nuevo_estado):
         pedido = next((ped for ped in get_pedidos() 
@@ -85,6 +107,23 @@ class Controlador:
     
     def get_todos_pedidos(self):
         return get_pedidos()
+    
+    def get_saldo_cliente(self, usuario):
+        """Retorna el saldo actual del cliente"""
+        if hasattr(usuario, 'saldo'):
+            return {
+                'saldo': usuario.saldo,
+                'limite_credito': getattr(usuario, 'limite_credito', 0),
+                'descuento': getattr(usuario, 'descuento', 0)
+            }
+        return None
+    
+    def actualizar_saldo_cliente(self, usuario, monto):
+        """Actualiza el saldo del cliente agregando o restando un monto"""
+        if hasattr(usuario, 'saldo'):
+            usuario.saldo += monto
+            return True
+        return False
     
     def get_stock_planta(self):
         """Retorna el stock actual y mínimo de la planta manufacturera con información de artículos"""
