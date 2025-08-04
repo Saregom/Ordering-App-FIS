@@ -7,6 +7,9 @@ db = DatabaseManager()
 def get_articulos():
     return db.get_articulos()
 
+def get_articulos_planta():
+    return db.get_articulos_planta()
+
 def add_articulo(articulo):
     db.add_articulo(articulo)
 

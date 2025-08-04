@@ -29,6 +29,9 @@ class MenuVista:
             ttk.Button(btn_frame, text="Actualizar Stock", 
                       command=self.callbacks['actualizar_stock'],
                       style='Provider.TButton', width=25).pack(pady=10)
+            ttk.Button(btn_frame, text="Consultar Stock Planta", 
+                      command=self.callbacks['consultar_stock_planta'],
+                      style='Provider.TButton', width=25).pack(pady=10)
         elif isinstance(self.usuario, DirectorVentas):
             ttk.Button(btn_frame, text="Consultar Inventario", 
                       command=self.callbacks['consultar_inventario'],

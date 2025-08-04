@@ -73,6 +73,7 @@ class App:
             'ver_historial_pedidos': self.ver_historial_pedidos,
             'realizar_pedido': self.realizar_pedido,
             'actualizar_stock': self.actualizar_stock_menu,
+            'consultar_stock_planta': self.consultar_stock_planta,
             'consultar_inventario': self.consultar_inventario,
             'cambiar_estado_pedidos': self.cambiar_estado_pedidos,
             'logout': self.logout
@@ -115,7 +116,10 @@ class App:
         """Menú para actualizar el stock (proveedor)"""
         inventario_vista = InventarioVista(self.root, self.articulos_disponibles, {
             'actualizar_stock': self._actualizar_stock_callback,
-            'agregar_producto': self._agregar_producto_callback
+            'agregar_producto': self._agregar_producto_callback,
+            'get_articulos_planta': self._get_articulos_planta_callback,
+            'get_stock_planta': self._get_stock_planta_callback,
+            'agregar_desde_planta': self._agregar_desde_planta_callback
         })
         inventario_vista.mostrar_actualizar_stock()
 
@@ -136,6 +140,29 @@ class App:
             messagebox.showinfo("Éxito", f"Producto {nombre} agregado al inventario")
             return True
         return False
+
+    def consultar_stock_planta(self):
+        """Consultar el stock de la planta manufacturera (proveedor)"""
+        from interfaz.vistas.inventario_vista import InventarioVista
+        
+        stock_data = self.controlador.get_stock_planta()
+        inventario_vista = InventarioVista(self.root, [], {})
+        inventario_vista.mostrar_stock_planta(stock_data)
+
+    def _get_articulos_planta_callback(self):
+        """Callback para obtener artículos de la planta"""
+        return self.controlador.get_articulos_planta()
+    
+    def _get_stock_planta_callback(self):
+        """Callback para obtener stock de la planta"""
+        return self.controlador.get_stock_planta()
+    
+    def _agregar_desde_planta_callback(self, codigo, cantidad, precio_venta):
+        """Callback para agregar artículo desde la planta"""
+        resultado = self.controlador.agregar_articulo_desde_planta(codigo, cantidad, precio_venta)
+        if resultado['success']:
+            self.articulos_disponibles = self.controlador.get_articulos()
+        return resultado
 
     def cambiar_estado_pedidos(self):
         """Permite al director cambiar el estado de los pedidos"""

@@ -10,6 +10,7 @@ import sys
 class DatabaseManager:
     def __init__(self):
         self._articulos: List[Articulo] = []
+        self._articulos_planta: List[Articulo] = []  # Artículos específicos de la planta
         self._usuarios: List[Any] = []  # Cliente, Proveedor, DirectorVentas
         self._pedidos: List[Pedido] = []
         self._planta: PlantaManufactura = PlantaManufactura()
@@ -19,8 +20,8 @@ class DatabaseManager:
         """Inicializa la base de datos con datos de prueba"""
         # Inicializar artículos
         self._articulos = [
-            Articulo("1122", "Laptop Acer B2C3", "Computadora personal", 1, 50),
-            Articulo("3344", "Mouse Razer", "Mouse ergonómico", 2, 100)
+            Articulo("1122", "Laptop Acer B2C3", "Computadora personal", 850, 50),
+            Articulo("3344", "Mouse Razer", "Mouse ergonómico", 25, 100)
         ]
         
         # Inicializar usuarios
@@ -36,8 +37,16 @@ class DatabaseManager:
         self._pedidos = [pedido_inicial]
         
         # Configurar planta
-        self._planta.cant_art_pm = {"1122": 200, "3344": 400}
-        self._planta.stock_min_pm = {"1122": 10, "3344": 20}
+        self._articulos_planta = [
+            Articulo("1122", "Laptop Acer B2C3", "Computadora personal", 800, 50),
+            Articulo("3344", "Mouse Razer", "Mouse ergonómico", 20, 100),
+            Articulo("5566", "Teclado Logitech", "Teclado mecánico", 25, 75),
+            Articulo("7788", "Monitor Dell", "Monitor 24 pulgadas", 80, 30),
+            Articulo("9900", "Impresora HP", "Impresora láser", 70, 20)
+        ]
+
+        self._planta.cant_art_pm = {"1122": 200, "3344": 400, "5566": 300, "7788": 150, "9900": 100}
+        self._planta.stock_min_pm = {"1122": 10, "3344": 20, "5566": 15, "7788": 10, "9900": 5}
         
         # Asociar pedido inicial al cliente
         cliente = self.find_usuario_by_id("33")
@@ -49,6 +58,10 @@ class DatabaseManager:
     def get_articulos(self) -> List[Articulo]:
         """Retorna la lista de todos los artículos"""
         return self._articulos  # Retornamos la lista original para mantener las referencias
+    
+    def get_articulos_planta(self) -> List[Articulo]:
+        """Retorna la lista de artículos específicos de la planta manufacturera"""
+        return self._articulos_planta
     
     def add_articulo(self, articulo: Articulo) -> None:
         """Agrega un nuevo artículo"""
